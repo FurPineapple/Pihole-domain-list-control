@@ -97,3 +97,5 @@ systemctl enable gravity-domain-list-ctrl@<enabled/disabled>.<service/timer>
 ```
 systemctl start gravity-domain-list-ctrl@<enabled/disabled>.timer
 ```
+
+**_You may want to specify certain users to Groups, to affect only these users. This can be done using Web GUI or direct query to Gravity_**
