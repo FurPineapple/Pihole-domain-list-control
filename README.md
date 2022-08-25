@@ -37,7 +37,7 @@ ExecStart=/usr/bin/python3 /usr/local/usr-pihole-scripts/domain-list-ctrl.py %i 
 WantedBy=multi-user.target
 ```
 
-***Place your domain-list's comments instead of 'Learning Time' and divided with `space` bar if using more than one comment***
+***Change path to stored location of domain-list-ctrl.py script. Place your domain-list's comments instead of 'Learning Time' and divided with `space` bar if using more than one comment***
 
 ### Create enabling timer unit with argument (run commands as root or evaluated user)
 
