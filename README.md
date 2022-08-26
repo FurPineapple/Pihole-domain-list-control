@@ -56,8 +56,24 @@ Content example:
 Description=Changes state for marked domains
 
 [Service]
-Type=simple
+Type=oneshot
+Restart=on-failure
 ExecStart=/usr/bin/python3 /usr/local/usr-pihole-scripts/domain-list-ctrl.py %i -c 'Learning Time'
+ExecStartPost=/bin/systemctl start reload-domainlists.service
+
+[Install]
+WantedBy=multi-user.target
+```
+
+* Create service unit to only update the lists WITHOUT flushing the cache or restarting the DNS server right after the Domain state change
+
+```
+[Unit]
+Description=Reload lists after changes
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/bash /usr/local/bin/pihole restartdns reload-lists
 
 [Install]
 WantedBy=multi-user.target
