@@ -1,5 +1,5 @@
 # Pihole-domain-list-control
-Apply automated changes based on time to Pi-Hole Gravity database's table 'domainlist'. Control access to resources using blacklists/whitelists as well as wildcarded lists.
+Automate Pi-Hole DNS sinkhole's whitelists/blacklists. Apply automated changes based on time to Pi-Hole Gravity database's table 'domainlist' to allow or restrict queries. Control access to resources, select users whom apply changes to, select time to control DNS traffic.
 
 * Dependencies:
 
@@ -9,21 +9,47 @@ Apply automated changes based on time to Pi-Hole Gravity database's table 'domai
     
     * Can check using Web GUI or directly in Gravity.db
    
->**The script changes domain-list state according to it's comment. This way many blacklists/whitelists can be targeted at a time. That is why you may want to apply pattern comment to all the domain-lists you wish to change state. You can target many comment patterns sametimes affecting many groups at a time.**
+**The script changes domain-list state according to it's comment. This way many blacklists/whitelists can be targeted at a time. That is why you may want to apply pattern comment to all the domain-lists you wish to change state. You can target many comment patterns same-times affecting many groups at a time.**
 
-For example regular expression blacklist to deny all DNS queries would be `'.*'` - comment 'Learning Time', and regular expression whitelist (to allow queries only for selected resources) `'.*github.com'` - comment 'Learning Time'. This way you can use 'Learning Time' comment as the refference to 2 domain-lists: blacklist (`'.*'`) and whitelist (`'.*github.com'`). Enabling both will end-up with successful reach of any GitHub.com link nothing more.
+For example regular expression blacklist to deny all DNS queries would be `'.*'` - comment 'Learning Time', and regular expression whitelist (to allow queries only for selected resources) `'.*github.com'` - comment 'Learning Time'. This way you can use 'Learning Time' comment as the reference to 2 domain-lists: blacklist (`'.*'`) and whitelist (`'.*github.com'`). Enabling both will end-up with successful reach of any GitHub.com link nothing more.
 
-# To change state automatically create systemd .service with .timers
+To affect certain users or certain user groups:
 
-> Example found below:
+ * Create new non-default group (Example in Web GUI)
+ 
+![github-pihole-groups-main](https://user-images.githubusercontent.com/43132663/186899940-9f4c403b-eccb-491d-8b96-1cc3bc4cb2bb.PNG)
 
-### Create service unit with argument (run commands as root or evaluated user)
+![github-group-management](https://user-images.githubusercontent.com/43132663/186899938-b9f454c5-ca62-4634-a0b2-8cffd825c587.PNG)
+
+ * Select clients from drop-down menu and assign them to your certain group
+
+![github-select-client](https://user-images.githubusercontent.com/43132663/186899941-80a3ade4-3273-495e-960f-780d9d192682.PNG)
+
+ * By default newly created domains are assigned to Default group, you need to change group assignment after creation.
+
+![github-domain-group-assignment](https://user-images.githubusercontent.com/43132663/186899930-e9299876-9a68-4416-bf29-8d94cced329b.PNG)
+
+You can add new domains directly to Gravity database, to add domains in disabled mode, this will prevent affecting restrictions to all the default group users. After creation change assigned group and state to enabled. Documentation for Gravity database found:
+
+```
+https://docs.pi-hole.net/database/gravity/
+```
+
+# Steps
+
+### 1. Place the script 
+
+### 2. Create systemd .service with .timers
+
+Examples found below:
+
+* Create service unit with argument (run commands as root or evaluated user)
 
 ```
 nano /etc/systemd/system/gravity-domain-list-ctrl@.service
 ```
 
->Content example:
+Content example:
     
 ```
 [Unit]
@@ -39,13 +65,13 @@ WantedBy=multi-user.target
 
 ***Change path to stored location of domain-list-ctrl.py script. Place your domain-list's comments instead of 'Learning Time' and divided with `space` bar if using more than one comment***
 
-### Create enabling timer unit with argument (run commands as root or evaluated user)
+* Create enabling timer unit with argument (run commands as root or evaluated user)
 
 ```
 nano /etc/systemd/system/gravity-domain-list-ctrl@enabled.timer
 ```
 
->Content example:
+Content example:
     
 ```
 [Unit]
@@ -58,14 +84,14 @@ OnCalendar=*-*-* 08:30:00
 WantedBy=timers.target
 ```
 
-### Create disabling timer unit with argument (run commands as root or evaluated user)
+* Create disabling timer unit with argument (run commands as root or evaluated user)
 
 
 ```
 nano /etc/systemd/system/gravity-domain-list-ctrl@disabled.timer
 ```
 
->Content example:
+Content example:
     
 ```
 [Unit]
@@ -78,24 +104,22 @@ OnCalendar=*-*-* 16:30:00
 WantedBy=timers.target
 ```
 
-# After creation of units enable ones
+### 3. After creation of units enable ones
 
->Reload systemctl daemons (run as root or evaluated user)
+Reload systemctl daemons (run as root or evaluated user)
 
 ```
 systemctl daemon-reload
 ```
 
->Enable all the units (run as root or evaluated user ***change values inside each <>***)
+Enable all the units (run as root or evaluated user ***change values inside each <>***)
 
 ```
 systemctl enable gravity-domain-list-ctrl@<enabled/disabled>.<service/timer>
 ```
 
->Start each timer (run as root or evaluated user ***change values inside <>***)
+Start each timer (run as root or evaluated user ***change values inside <>***)
 
 ```
 systemctl start gravity-domain-list-ctrl@<enabled/disabled>.timer
 ```
-
-**_You may want to specify certain users to Groups, to affect only these users. This can be done using Web GUI or direct query to Gravity_**
