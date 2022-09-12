@@ -34,10 +34,28 @@ You can add new domains directly to Gravity database, to add domains in disabled
 ```
 https://docs.pi-hole.net/database/gravity/
 ```
+# Overview
 
-# Steps
+The script `domain-list-ctrl.py` uses sqlite3 and re modules as well as argparse for the use of arguments.
+See below command for help (do not forget to correct the path): 
+
+```
+/path/to/python3 /path/to/domain-list-ctrl.py -h
+```
+
+The pattern for use would be:
+
+```
+python3 domain-list-ctrl.py <enabled/disabled> <domainlist_comment/domainlist_comment_list>
+```
+
+This pattern will be used in Linux services onwards.
+
+## Steps
 
 ### 1. Place the script 
+
+Choose the directory to store `domain-list-ctrl.py`.
 
 ### 2. Create systemd .service with .timers
 
